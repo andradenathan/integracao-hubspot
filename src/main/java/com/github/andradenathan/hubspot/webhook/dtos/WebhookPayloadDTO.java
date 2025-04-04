@@ -9,5 +9,12 @@ public record WebhookPayloadDTO(
         Long appId,
         Long occurredAt,
         WebhookSubscriptionType subscriptionType,
-        Long objectId
+        Long objectId,
+        String propertyName,
+        String propertyValue,
+        String changeFlag,
+        String changeSource,
+        Long attemptNumber,
+        Long messageId,
+        String messageType
 ) {}

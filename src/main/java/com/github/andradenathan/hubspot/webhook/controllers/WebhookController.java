@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/webhook")
@@ -23,12 +25,14 @@ public class WebhookController {
     @PostMapping
     public ResponseEntity<BaseResponse> handleHubSpotWebhook(
             @RequestHeader("X-HubSpot-Signature-v3") String signature,
+            @RequestHeader("X-HubSpot-Request-Timestamp") String timestamp,
             @RequestBody String rawBody) throws Exception {
 
         logger.info("Received HubSpot webhook with signature: {}", signature);
+        logger.info("Received HubSpot webhook with timestamp: {}", timestamp);
         logger.info("Received HubSpot webhook with body: {}", rawBody);
 
-        WebhookPayloadDTO webhookPayloadDTO = webhookService.handleHubSpotWebhook(signature, rawBody);
+        List<WebhookPayloadDTO> webhookPayloadDTO = webhookService.handleHubSpotWebhook(signature, timestamp, rawBody);
 
         logger.info("Webhook payload: {}", webhookPayloadDTO);
         logger.info("Webhook handled successfully");
