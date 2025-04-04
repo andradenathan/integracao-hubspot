@@ -54,4 +54,12 @@ public class AuthService {
 
         return response.getBody();
     }
+
+    public HttpHeaders createHeaders(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(accessToken);
+
+        return headers;
+    }
 }

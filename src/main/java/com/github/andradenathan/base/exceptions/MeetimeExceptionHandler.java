@@ -24,7 +24,12 @@ public class MeetimeExceptionHandler {
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<BaseResponse> handleHttpClientErrorException(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(new BaseResponse("An error occurred while attempting to process entity: " + e.getMessage(), "error"));
+                .body(
+                        new BaseResponse(
+                                "An error occurred while attempting to process entity: " + e.getMessage(),
+                                "error"
+                        )
+                );
     }
 
     @ExceptionHandler(RateLimitExceededException.class)

@@ -5,6 +5,7 @@ import com.github.andradenathan.base.exceptions.UnauthorizedException;
 import com.github.andradenathan.hubspot.contact.dtos.CreateContactRequestDTO;
 import com.github.andradenathan.hubspot.contact.dtos.CreateContactResponseDTO;
 import com.github.andradenathan.hubspot.contact.dtos.HubSpotContactDTO;
+import com.github.andradenathan.hubspot.oauth.services.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
@@ -26,20 +27,23 @@ public class ContactService {
 
     private final RestTemplate restTemplate;
 
-    public ContactService(RestTemplateBuilder restTemplateBuilder) {
+    private final AuthService authService;
+
+    public ContactService(RestTemplateBuilder restTemplateBuilder, AuthService authService) {
+        this.authService = authService;
         this.restTemplate = restTemplateBuilder.build();
     }
 
     @Retryable(
             retryFor = { RateLimitExceededException.class },
-            maxAttempts = 3,
+            maxAttempts = 5,
             backoff = @Backoff(delay = 5000, multiplier = 1.0)
     )
     public CreateContactResponseDTO create(CreateContactRequestDTO createContactRequestDTO)
             throws RateLimitExceededException {
         HubSpotContactDTO hubSpotContactDTO = HubSpotContactDTO.from(createContactRequestDTO);
 
-        HttpHeaders headers = createHeaders();
+        HttpHeaders headers = authService.createHeaders(accessToken);
 
         HttpEntity<HubSpotContactDTO> requestEntity = new HttpEntity<>(hubSpotContactDTO, headers);
 
@@ -62,13 +66,5 @@ public class ContactService {
 
             throw e;
         }
-    }
-
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(accessToken);
-
-        return headers;
     }
 }
