@@ -1,5 +1,6 @@
 package com.github.andradenathan.hubspot.contact.services;
 
+import com.github.andradenathan.base.exceptions.RateLimitExceededException;
 import com.github.andradenathan.base.exceptions.UnauthorizedException;
 import com.github.andradenathan.hubspot.contact.dtos.CreateContactRequestDTO;
 import com.github.andradenathan.hubspot.contact.dtos.CreateContactResponseDTO;
@@ -7,11 +8,11 @@ import com.github.andradenathan.hubspot.contact.dtos.HubSpotContactDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
 
 @Service
 public class ContactService {
@@ -29,33 +30,38 @@ public class ContactService {
         this.restTemplate = restTemplateBuilder.build();
     }
 
-    public CreateContactResponseDTO createContact(CreateContactRequestDTO createContactRequestDTO) {
+    @Retryable(
+            retryFor = { RateLimitExceededException.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 5000, multiplier = 1.0)
+    )
+    public CreateContactResponseDTO create(CreateContactRequestDTO createContactRequestDTO)
+            throws RateLimitExceededException {
         HubSpotContactDTO hubSpotContactDTO = HubSpotContactDTO.from(createContactRequestDTO);
 
         HttpHeaders headers = createHeaders();
 
         HttpEntity<HubSpotContactDTO> requestEntity = new HttpEntity<>(hubSpotContactDTO, headers);
 
-        int retries = 3;
+        try {
+            ResponseEntity<HubSpotContactDTO> response = restTemplate.exchange(
+                    HUBSPOT_CONTACTS_API_URL,
+                    HttpMethod.POST,
+                    requestEntity,
+                    HubSpotContactDTO.class
+            );
 
-        for(int retry = 0; retry < retries; retry++) {
-            try {
-                ResponseEntity<HubSpotContactDTO> response = restTemplate.exchange(
-                        HUBSPOT_CONTACTS_API_URL,
-                        HttpMethod.POST,
-                        requestEntity,
-                        HubSpotContactDTO.class
-                );
+            return new CreateContactResponseDTO(response.getBody());
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode().value() == HttpStatus.UNAUTHORIZED.value())
+                throw new UnauthorizedException("Unauthorized: " + e.getMessage());
 
-                return new CreateContactResponseDTO(response.getBody());
-            } catch (HttpClientErrorException e) {
-                if(e.getStatusCode().value() == 401) throw new UnauthorizedException("Unauthorized: " + e.getMessage());
-
-                handleRateLimit(e);
+            if(e.getStatusCode().value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
+                throw new RateLimitExceededException("Rate limit exceeded, try again later.");
             }
-        }
 
-        throw new RuntimeException("Rate limit exceeded, try again later.");
+            throw e;
+        }
     }
 
     private HttpHeaders createHeaders() {
@@ -64,17 +70,5 @@ public class ContactService {
         headers.setBearerAuth(accessToken);
 
         return headers;
-    }
-
-    private void handleRateLimit(HttpClientErrorException e) {
-        int retryAfter = e.getResponseHeaders().getOrDefault("Retry-After", Collections.singletonList("5"))
-                .stream()
-                .map(Integer::parseInt)
-                .findFirst()
-                .orElse(5);
-
-        try {
-            Thread.sleep(retryAfter * 1000L);
-        } catch (InterruptedException ignored) {}
     }
 }

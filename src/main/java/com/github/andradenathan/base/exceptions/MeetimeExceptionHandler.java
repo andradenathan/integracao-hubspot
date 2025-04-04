@@ -24,6 +24,12 @@ public class MeetimeExceptionHandler {
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<BaseResponse> handleHttpClientErrorException(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(new BaseResponse("An error ocurred attempting to create contact: " + e.getMessage(), "error"));
+                .body(new BaseResponse("An error occurred while attempting to process entity: " + e.getMessage(), "error"));
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<BaseResponse> handleRateLimitExceededException(RateLimitExceededException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new BaseResponse(e.getMessage(), "error"));
     }
 }
