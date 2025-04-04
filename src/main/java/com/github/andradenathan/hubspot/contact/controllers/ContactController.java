@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/contact")
 public class ContactController {
-
     private final ContactService contactService;
 
     public ContactController(ContactService contactService) {
@@ -25,7 +24,8 @@ public class ContactController {
         CreateContactResponseDTO createContactResponseDTO = contactService.create(createContactDTO);
 
         return ResponseEntity.ok(
-                new BaseResponse(createContactResponseDTO.contact(), "Contact created successfully", "success")
+                new BaseResponse(
+                        createContactResponseDTO.contact(), "Contact created successfully", "success")
         );
     }
 }

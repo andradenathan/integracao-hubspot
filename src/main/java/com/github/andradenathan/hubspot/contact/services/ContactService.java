@@ -2,11 +2,12 @@ package com.github.andradenathan.hubspot.contact.services;
 
 import com.github.andradenathan.base.exceptions.RateLimitExceededException;
 import com.github.andradenathan.base.exceptions.UnauthorizedException;
+import com.github.andradenathan.hubspot.contact.dtos.ContactDTO;
 import com.github.andradenathan.hubspot.contact.dtos.CreateContactRequestDTO;
 import com.github.andradenathan.hubspot.contact.dtos.CreateContactResponseDTO;
 import com.github.andradenathan.hubspot.contact.dtos.HubSpotContactDTO;
 import com.github.andradenathan.hubspot.oauth.services.AuthService;
-import org.springframework.beans.factory.annotation.Value;
+import com.github.andradenathan.hubspot.webhook.dtos.WebhookPayloadDTO;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.retry.annotation.Backoff;
@@ -17,12 +18,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ContactService {
-    @Value("${hubspot.api-url}")
-    private String apiUrl;
-
-    @Value("${hubspot.access-token}")
-    private String accessToken;
-
     private static final String HUBSPOT_CONTACTS_API_URL = "https://api.hubapi.com/crm/v3/objects/contacts";
 
     private final RestTemplate restTemplate;
@@ -40,10 +35,11 @@ public class ContactService {
             backoff = @Backoff(delay = 5000, multiplier = 1.0)
     )
     public CreateContactResponseDTO create(CreateContactRequestDTO createContactRequestDTO)
-            throws RateLimitExceededException {
+            throws UnauthorizedException, RateLimitExceededException {
+
         HubSpotContactDTO hubSpotContactDTO = HubSpotContactDTO.from(createContactRequestDTO);
 
-        HttpHeaders headers = authService.createHeaders(accessToken);
+        HttpHeaders headers = authService.createHeaders();
 
         HttpEntity<HubSpotContactDTO> requestEntity = new HttpEntity<>(hubSpotContactDTO, headers);
 
@@ -61,10 +57,14 @@ public class ContactService {
                 throw new UnauthorizedException("Unauthorized: " + e.getMessage());
 
             if(e.getStatusCode().value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
-                throw new RateLimitExceededException("Rate limit exceeded, try again later.");
+                throw new RateLimitExceededException("Rate limit exceeded, please try again.");
             }
 
             throw e;
         }
+    }
+
+    public ContactDTO store(WebhookPayloadDTO webhookPayloadDTO) {
+        return null;
     }
 }
