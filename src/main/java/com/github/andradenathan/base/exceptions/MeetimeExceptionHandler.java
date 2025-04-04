@@ -15,6 +15,12 @@ public class MeetimeExceptionHandler {
                 .body(new BaseResponse("An error occurred: " + e.getMessage(), "error"));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new BaseResponse(e.getMessage(), "error"));
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<BaseResponse> handleUnauthorizedException(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -35,6 +41,12 @@ public class MeetimeExceptionHandler {
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<BaseResponse> handleRateLimitExceededException(RateLimitExceededException e) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new BaseResponse(e.getMessage(), "error"));
+    }
+
+    @ExceptionHandler(InvalidSignatureException.class)
+    public ResponseEntity<BaseResponse> handleInvalidSignatureException(InvalidSignatureException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new BaseResponse(e.getMessage(), "error"));
     }
 }
