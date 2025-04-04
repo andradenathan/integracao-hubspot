@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum WebhookSubscriptionType {
-    CONTACT_CREATION("contact.creation"),
+    CONTACT_CREATION("contact.creation")
     ;
 
     private final String value;
