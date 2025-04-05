@@ -3,7 +3,6 @@ package com.github.andradenathan.hubspot.oauth.controllers;
 import com.github.andradenathan.base.BaseResponse;
 import com.github.andradenathan.hubspot.oauth.dtos.AuthTokenResponseDTO;
 import com.github.andradenathan.hubspot.oauth.services.AuthService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

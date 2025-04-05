@@ -6,10 +6,10 @@ import org.springframework.retry.annotation.EnableRetry;
 
 @SpringBootApplication
 @EnableRetry
-public class CaseTecnicoMeetimeApplication {
+public class IntegracaoHubspotApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CaseTecnicoMeetimeApplication.class, args);
+        SpringApplication.run(IntegracaoHubspotApplication.class, args);
     }
 
 }
