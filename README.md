@@ -57,7 +57,7 @@ Responsável por fornecer os recursos de construção da API RESTful, incluindo 
 Em especial, como fora explicitado no paper do desafio técnico, a necessidade de lidar com retries entre a comunicação da API e o HubSpot, escolhi essa lib pois ela é uma das mais utilizadas para implementar lógica de retry em aplicações Spring. O Spring Retry permite configurar facilmente a quantidade de tentativas, o intervalo entre elas e outras opções de configuração, tornando a implementação de lógica de retry mais simples e eficiente. 
 
 
-### Design de arquitetura
+## Design de arquitetura
 
 Este projeto utiliza uma abordagem **modular por feature**, onde cada funcionalidade da aplicação (como contatos, autenticação e webhooks) possui seu próprio pacote contendo controladores, DTOs e serviços relacionados. Isso facilita a leitura e o entendimento do projeto por parte dos avaliadores, ao mesmo tempo em que mantém separação de responsabilidades.
 
@@ -66,7 +66,7 @@ Optei por **não utilizar Clean Architecture** neste desafio técnico devido à 
 Apesar da simplicidade, os princípios **SOLID** foram respeitados durante a implementação, garantindo coesão e manutenibilidade.
 
 
-### Melhorias futuras
+## Melhorias futuras
 
 #### Arquitetura
 - **Adoção da Clean Architecture**: Para tornar o projeto mais escalável e independente de frameworks externos, é possível reorganizar as camadas em `domain`, `application`, `infrastructure` e `interfaces`, seguindo os princípios da Clean Architecture.
