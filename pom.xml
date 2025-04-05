@@ -6,13 +6,13 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.github.andradenathan</groupId>
-    <artifactId>case-tecnico-meetime</artifactId>
+    <artifactId>integracao-hubspot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>case-tecnico-meetime</name>
-    <description>case-tecnico-meetime</description>
+    <name>integracao-hubspot</name>
+    <description>integracao-hubspot</description>
     <url/>
     <licenses>
         <license/>
