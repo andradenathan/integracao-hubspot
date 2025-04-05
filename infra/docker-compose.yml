@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: infra/app/Dockerfile
+    ports:
+      - "8090:8090"
+    networks:
+      - app-network
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http app:8090 --log=stdout
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
