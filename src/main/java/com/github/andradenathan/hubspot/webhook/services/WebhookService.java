@@ -2,32 +2,29 @@ package com.github.andradenathan.hubspot.webhook.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.andradenathan.contact.services.ContactService;
-import com.github.andradenathan.hubspot.contact.dtos.HubSpotGetContactResponseDTO;
-import com.github.andradenathan.hubspot.contact.services.HubSpotContactService;
 import com.github.andradenathan.hubspot.webhook.WebhookSubscriptionType;
 import com.github.andradenathan.hubspot.webhook.dtos.WebhookPayloadDTO;
-import jakarta.servlet.http.HttpServlet;
+import com.github.andradenathan.hubspot.webhook.handlers.WebhookEventHandler;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class WebhookService {
-    private HubSpotContactService hubSpotContactService;
-    private ContactService contactService;
-
-    private WebhookSignatureVerifier webhookSignatureVerifier;
+    private final WebhookSignatureVerifier signatureVerifier;
+    private final ObjectMapper objectMapper;
+    private final Map<WebhookSubscriptionType, WebhookEventHandler> handlerMap;
 
     public WebhookService(
-            ContactService contactService,
-            HubSpotContactService hubSpotContactService,
-            WebhookSignatureVerifier webhookSignatureVerifier) {
-        this.contactService = contactService;
-        this.webhookSignatureVerifier = webhookSignatureVerifier;
-        this.hubSpotContactService = hubSpotContactService;
+            ObjectMapper objectMapper,
+            WebhookSignatureVerifier signatureVerifier,
+            List<WebhookEventHandler> handlers) {
+        this.signatureVerifier = signatureVerifier;
+        this.objectMapper = objectMapper;
+        this.handlerMap = handlers.stream()
+                .collect(Collectors.toMap(WebhookEventHandler::getHandledType, handler -> handler));
     }
 
     public List<WebhookPayloadDTO> handleHubSpotWebhook(
@@ -35,28 +32,23 @@ public class WebhookService {
             String signature,
             String timestamp,
             String rawBody) throws Exception {
-        webhookSignatureVerifier.validate(request, rawBody, timestamp, signature);
+        signatureVerifier.validate(request, rawBody, timestamp, signature);
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<WebhookPayloadDTO> payloads = mapper.readValue(
+        List<WebhookPayloadDTO> payloads = objectMapper.readValue(
                 rawBody,
                 new TypeReference<>() {}
         );
 
         for(WebhookPayloadDTO payload : payloads) {
-            if(!payload.subscriptionType().equals(WebhookSubscriptionType.CONTACT_CREATION)) {
-                throw new RuntimeException("Invalid subscription type: it must be contact.creation");
+            WebhookEventHandler handler = handlerMap.get(payload.subscriptionType());
+
+            if(handler == null) {
+                throw new IllegalArgumentException("No handler found for subscription type: " + payload.subscriptionType());
             }
 
-            handleContactCreation(payload);
+            handler.handle(payload);
         }
 
         return payloads;
-    }
-
-    private void handleContactCreation(WebhookPayloadDTO webhookPayloadDTO) {
-        HubSpotGetContactResponseDTO contact = hubSpotContactService.findContactById(webhookPayloadDTO.objectId());
-
-        contactService.save(contact.properties());
     }
 }

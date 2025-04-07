@@ -25,7 +25,7 @@ public class WebhookController {
     }
 
     @PostMapping
-    public ResponseEntity<BaseResponse> handleHubSpotWebhook(
+    public ResponseEntity<BaseResponse> handle(
             @RequestHeader("X-HubSpot-Signature-v3") String signature,
             @RequestHeader("X-HubSpot-Request-Timestamp") String timestamp,
             @RequestBody String rawBody,
@@ -34,7 +34,6 @@ public class WebhookController {
         logger.info("Received HubSpot webhook with signature: {}", signature);
         logger.info("Received HubSpot webhook with timestamp: {}", timestamp);
         logger.info("Received HubSpot webhook with body: {}", rawBody);
-
 
         List<WebhookPayloadDTO> webhookPayloadDTO = webhookService.handleHubSpotWebhook(
                 request,

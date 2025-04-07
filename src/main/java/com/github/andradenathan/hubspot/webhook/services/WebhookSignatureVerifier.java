@@ -22,7 +22,7 @@ public class WebhookSignatureVerifier {
     private String clientSecret;
     private static final long MAX_ALLOWED_MILLIS = 5 * 60 * 1000;
 
-    private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebhookSignatureVerifier.class);
 
     public WebhookSignatureVerifier() {}
 
