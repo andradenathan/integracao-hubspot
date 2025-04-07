@@ -1,4 +1,4 @@
-package com.github.andradenathan.hubspot.oauth.config;
+package com.github.andradenathan.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +13,10 @@ public class AuthConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/contact").permitAll()
+                        .requestMatchers("/internal/**").permitAll()
                         .requestMatchers("/webhook").permitAll()
+                        .requestMatchers("/hubspot/**").permitAll()
+                        .requestMatchers("/contact").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable);

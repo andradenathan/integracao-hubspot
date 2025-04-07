@@ -9,33 +9,38 @@ O projeto utiliza o **Ngrok** para expor o servidor local da API em um domínio 
 
 ### Passo a passo para rodar o projeto
 
-1. Suba a API com Docker:
+1. Suba o banco de dados com o Docker:
+   ```bash
+   docker-compose -f infra/docker-compose.yml up -d db
+   ```
+
+2. Suba a API com Docker:
 
    ```bash
    docker compose -f infra/docker-compose.yml up -d app
    ```
 
-2. Em seguida, inicie o container do Ngrok com seu token de autenticação:
-    ```bash
-    NGROK_AUTHTOKEN={SEU_NGROK_AUTHTOKEN} docker compose -f infra/docker-compose.yml up -d ngrok --no-deps
-   ```
+3. Em seguida, inicie o container do Ngrok com seu token de autenticação:
+```bash
+NGROK_AUTHTOKEN={SEU_NGROK_AUTHTOKEN} docker compose -f infra/docker-compose.yml up -d ngrok --no-deps
+```
 Um token para o Ngrok foi enviado através do e-mail dos avaliadores do desafio. Caso você não tenha um token, confira as instruções clicando aqui: [Como obter seu token de autenticação NGROK](/docs/README.md).
 
-3.  Após o container subir, obtenha o endereço público do túnel gerado:
-  ```bash
-    docker logs infra-ngrok-1
-   ```
+4. Após o container do Ngrok subir, suba o container do serviço de salvar a url na api:
+```bash 
+docker-compose -f infra/docker-compose.yml up -d public-url-registry --no-deps --build
+```
 
-4. O log exibirá algo como:
-  ```bash
-  t=2025-04-05T22:03:29+0000 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://app:8090 url=https://ae06-187-46-87-135.ngrok-free.app
-  ```
-onde neste caso, `https://ae06-187-46-87-135.ngrok-free.app` é o domínio público gerado pelo Ngrok.
-
-5. Copie esse endereço e registre no painel de Webhooks do seu aplicativo no HubSpot, usando o endpoint completo:
-    ```bash
-    https://ae06-187-46-87-135.ngrok-free.app/webhooks
-    ```
+5. Para pegar a URL pública do Ngrok, execute o seguinte comando:
+```bash
+docker logs infra-public-url-registry-1
+```
+onde a resposta será algo como:
+```bash
+Ngrok public URL: https://b758-187-46-87-135.ngrok-free.app
+Response from app: 200 {"data":null,"message":"Public webhook URL set successfully","status":"success"}
+```
+6. Copie a URL pública do Ngrok e cole no HubSpot, na seção de webhooks, para que o HubSpot consiga enviar os eventos de criação de contatos para a API.
 
 ## Tecnologias
 - Java 17

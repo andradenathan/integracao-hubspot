@@ -1,4 +1,4 @@
-package com.github.andradenathan.hubspot.oauth.dtos;
+package com.github.andradenathan.auth.dtos;
 
 public record AuthTokenResponseDTO(
         String access_token,

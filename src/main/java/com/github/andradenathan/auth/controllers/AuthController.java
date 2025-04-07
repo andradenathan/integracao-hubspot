@@ -1,8 +1,8 @@
-package com.github.andradenathan.hubspot.oauth.controllers;
+package com.github.andradenathan.auth.controllers;
 
 import com.github.andradenathan.base.BaseResponse;
-import com.github.andradenathan.hubspot.oauth.dtos.AuthTokenResponseDTO;
-import com.github.andradenathan.hubspot.oauth.services.AuthService;
+import com.github.andradenathan.auth.dtos.AuthTokenResponseDTO;
+import com.github.andradenathan.auth.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

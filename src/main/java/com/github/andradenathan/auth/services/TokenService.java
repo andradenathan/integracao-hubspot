@@ -1,4 +1,4 @@
-package com.github.andradenathan.hubspot.oauth.services;
+package com.github.andradenathan.auth.services;
 
 import org.springframework.stereotype.Service;
 

@@ -2,12 +2,11 @@ package com.github.andradenathan.hubspot.contact.services;
 
 import com.github.andradenathan.base.exceptions.RateLimitExceededException;
 import com.github.andradenathan.base.exceptions.UnauthorizedException;
-import com.github.andradenathan.hubspot.contact.dtos.ContactDTO;
-import com.github.andradenathan.hubspot.contact.dtos.CreateContactRequestDTO;
-import com.github.andradenathan.hubspot.contact.dtos.CreateContactResponseDTO;
-import com.github.andradenathan.hubspot.contact.dtos.HubSpotContactDTO;
-import com.github.andradenathan.hubspot.oauth.services.AuthService;
-import com.github.andradenathan.hubspot.webhook.dtos.WebhookPayloadDTO;
+import com.github.andradenathan.hubspot.contact.dtos.*;
+import com.github.andradenathan.auth.services.AuthService;
+import com.github.andradenathan.hubspot.webhook.services.WebhookService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.retry.annotation.Backoff;
@@ -17,14 +16,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class ContactService {
+public class HubSpotContactService {
     private static final String HUBSPOT_CONTACTS_API_URL = "https://api.hubapi.com/crm/v3/objects/contacts";
 
     private final RestTemplate restTemplate;
 
     private final AuthService authService;
 
-    public ContactService(RestTemplateBuilder restTemplateBuilder, AuthService authService) {
+    public HubSpotContactService(RestTemplateBuilder restTemplateBuilder, AuthService authService) {
         this.authService = authService;
         this.restTemplate = restTemplateBuilder.build();
     }
@@ -34,24 +33,27 @@ public class ContactService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 5000, multiplier = 1.0)
     )
-    public CreateContactResponseDTO create(CreateContactRequestDTO createContactRequestDTO)
+    public HubSpotCreateContactResponseDTO create(HubSpotCreateContactRequestDTO hubSpotCreateContactRequestDTO)
             throws UnauthorizedException, RateLimitExceededException {
-
-        HubSpotContactDTO hubSpotContactDTO = HubSpotContactDTO.from(createContactRequestDTO);
 
         HttpHeaders headers = authService.createHeaders();
 
-        HttpEntity<HubSpotContactDTO> requestEntity = new HttpEntity<>(hubSpotContactDTO, headers);
+        HubSpotContactWrapperDTO hubSpotContactWrapperDTO = new HubSpotContactWrapperDTO(hubSpotCreateContactRequestDTO);
+
+        HttpEntity<HubSpotContactWrapperDTO> requestEntity = new HttpEntity<>(
+                hubSpotContactWrapperDTO,
+                headers
+        );
 
         try {
-            ResponseEntity<HubSpotContactDTO> response = restTemplate.exchange(
+            ResponseEntity<HubSpotCreateContactResponseDTO> response = restTemplate.exchange(
                     HUBSPOT_CONTACTS_API_URL,
                     HttpMethod.POST,
                     requestEntity,
-                    HubSpotContactDTO.class
+                    HubSpotCreateContactResponseDTO.class
             );
 
-            return new CreateContactResponseDTO(response.getBody());
+            return response.getBody();
         } catch (HttpClientErrorException e) {
             if(e.getStatusCode().value() == HttpStatus.UNAUTHORIZED.value())
                 throw new UnauthorizedException("Unauthorized: " + e.getMessage());
@@ -64,7 +66,18 @@ public class ContactService {
         }
     }
 
-    public ContactDTO store(WebhookPayloadDTO webhookPayloadDTO) {
-        return null;
+    public HubSpotGetContactResponseDTO findContactById(Long contactId) {
+        HttpHeaders headers = authService.createHeaders();
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<HubSpotGetContactResponseDTO> response = restTemplate.exchange(
+                HUBSPOT_CONTACTS_API_URL + "/" + contactId,
+                HttpMethod.GET,
+                requestEntity,
+                HubSpotGetContactResponseDTO.class
+        );
+
+        return response.getBody();
     }
 }

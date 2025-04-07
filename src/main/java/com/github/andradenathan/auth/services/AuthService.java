@@ -1,6 +1,6 @@
-package com.github.andradenathan.hubspot.oauth.services;
+package com.github.andradenathan.auth.services;
 
-import com.github.andradenathan.hubspot.oauth.dtos.AuthTokenResponseDTO;
+import com.github.andradenathan.auth.dtos.AuthTokenResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
