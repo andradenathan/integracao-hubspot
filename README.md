@@ -1,8 +1,18 @@
 # Integração Hubspot - Case Técnico
 
-## Descrição
 Integração entre o Hubspot com o sistema desenvolvido para o case técnico da Meetime, permitindo a sincronização de contatos e informações entre as duas plataformas.
 
+
+## Endpoints
+**/auth/authorization-url**: Endpoint para gerar sua URL de autorização. Necessário ter atualizado o `application.properties` adicionando as seguintes variáveis:
+- HUBSPOT_CLIENT_ID: ID do cliente obtido no painel de desenvolvedor do HubSpot.
+- HUBSPOT_CLIENT_SECRET: Segredo do cliente obtido no painel de desenvolvedor do HubSpot. 
+
+**/hubspot/contact**: Endpoint para criar um contato no HubSpot.
+
+**/webhook**: Endpoint para lidar com os eventos recebidos do Webhook do HubSpot.
+
+**/contacts**: Endpoint para listar os contatos criados na API. 
 
 ## Como Executar
 O projeto utiliza o **Ngrok** para expor o servidor local da API em um domínio público. Isso é necessário para que o HubSpot consiga enviar webhooks ao seu ambiente de desenvolvimento.
@@ -53,13 +63,15 @@ Response from app: 200 {"data":null,"message":"Public webhook URL set successful
 ## Bibliotecas
 
 ### Spring Security
-Utilizado para proteger as rotas da API com autenticação via Bearer Token (o token de acesso do hubspot), garantindo que apenas requisições autenticadas possam acessar os endpoints sensíveis do sistema.
+Motivação: Escolhi o Spring Security porque precisava garantir que apenas requisições autenticadas com o token de acesso do HubSpot pudessem acessar os endpoints da aplicação.
+Optei por essa biblioteca por ser nativa do ecossistema Spring, e muito utilizada com diversas possibilidades de configuração para lidar com autenticação via Bearer Token de forma robusta.
 
 ### Spring Web
-Responsável por fornecer os recursos de construção da API RESTful, incluindo os decorators @RestController e @RequestMapping, além de facilitar o gerenciamento de requisições HTTP.
+Motivação:
+Para a construção da API RESTful, optei pelo Spring Web porque ele oferece uma forma muito prática de estruturar endpoints usando anotações como @RestController e @RequestMapping. Como já estou familiarizado com o Spring Boot, estou acostumado a lidar com a facilidade dessa bilioteca para gerenciar requisições RESTful.
 
 ### Spring Retry
-Em especial, como fora explicitado no paper do desafio técnico, a necessidade de lidar com retries entre a comunicação da API e o HubSpot, escolhi essa lib pois ela é uma das mais utilizadas para implementar lógica de retry em aplicações Spring. O Spring Retry permite configurar facilmente a quantidade de tentativas, o intervalo entre elas e outras opções de configuração, tornando a implementação de lógica de retry mais simples e eficiente. 
+Motivação: Em especial, como fora explicitado no paper do desafio técnico, a necessidade de lidar com retries entre a comunicação da API e o HubSpot, escolhi essa lib pois ela é uma das mais utilizadas para implementar lógica de retry em aplicações Spring. O Spring Retry permite configurar facilmente a quantidade de tentativas, o intervalo entre elas e outras opções de configuração, até mesmo tentativas utilizando concorrência, tornando a implementação de lógica de retry mais simples e eficiente. 
 
 
 ## Design de arquitetura
