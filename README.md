@@ -43,7 +43,7 @@ docker-compose -f infra/docker-compose.yml up -d public-url-registry --no-deps -
 
 5. Para pegar a URL pública do Ngrok, execute o seguinte comando:
 ```bash
-docker logs infra-public-url-registry-1
+docker logs public-url-registry
 ```
 onde a resposta será algo como:
 ```bash

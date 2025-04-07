@@ -46,6 +46,7 @@ services:
       - app-network
 
   public-url-registry:
+    container_name: public-url-registry
     build:
       context: ./public-url-registry
       dockerfile: Dockerfile
