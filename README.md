@@ -17,6 +17,8 @@ Integração entre o Hubspot com o sistema desenvolvido para o case técnico da 
 ## Como Executar
 O projeto utiliza o **Ngrok** para expor o servidor local da API em um domínio público. Isso é necessário para que o HubSpot consiga enviar webhooks ao seu ambiente de desenvolvimento.
 
+Além disso, disponibilizei um serviço em Python que faz somente o papel de registrar a URL pública que o Ngrok gerar. Esse serviço é necessário para que o HubSpot consiga enviar os eventos de criação de contatos para a API.
+
 ### Passo a passo para rodar o projeto
 
 1. Suba o banco de dados com o Docker:
