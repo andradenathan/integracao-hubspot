@@ -40,7 +40,7 @@ onde a resposta será algo como:
 Ngrok public URL: https://b758-187-46-87-135.ngrok-free.app
 Response from app: 200 {"data":null,"message":"Public webhook URL set successfully","status":"success"}
 ```
-6. Copie a URL pública do Ngrok e cole no HubSpot, na seção de webhooks, para que o HubSpot consiga enviar os eventos de criação de contatos para a API.
+6. Copie a URL pública do Ngrok e adicione o endpoint "/webhook" e adicione o endereço completo no HubSpot, na seção de webhooks, para que o HubSpot consiga enviar os eventos de criação de contatos para a API.
 
 ## Tecnologias
 - Java 17
